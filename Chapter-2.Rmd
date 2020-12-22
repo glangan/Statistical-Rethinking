@@ -1,11 +1,57 @@
 ---
-title: "R Notebook"
+title: "Chapter 2"
 output: rmarkdown::github_document
 ---
 
 # Chapter 2: Small Worlds and large worlds
 
+### Grid Approximation
+
+1. Define the grid.
+2. Compute the value of prior at each parameter value of grid.
+3. Compute the likelihood at each parameter value.
+4. Compute the unstandardized posterior at each parameter value, by multiplying
+ the prior by the likelihood.
+5. Standardize the posterior
+
+Scales poorly with model complexity, not used.
+
 ```{r}
-plot(cars)
+# define grid
+p_grid <- seq(from = 0, to = 1, length.out = 20)
+
+# define prior
+prior <- rep(1, 20)
+
+# compute likelihood at each value in grid
+likelihood <- dbinom(6, size = 9, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior
+posterior <- unstd.posterior / sum(unstd.posterior)
 ```
 
+```{r}
+# plot
+plot(p_grid, posterior, type = 'b', xlab = 'Probability of water', 
+     ylab = 'Posterior probability')
+mtext("20 Points")
+```
+
+### Quadratic Approximation
+
+```{r}
+library(rethinking)
+globe.qa <- quap(
+  alist(
+    W ~ dbinom(W+L, p),
+    p ~ dunif(0, 1)
+  ),
+  data = list(W = 6, L = 3)
+)
+
+# display summary of quadratic approximation
+precis(globe.qa)
+```
